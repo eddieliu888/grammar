@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Grammar Lesson</title>
+    <style>
+        body {
+            margin: 0; padding: 0; font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #f4f8fb; color: #333; display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
+        }
+        
+        /* --- 新增：載入歡迎畫面 (Splash Screen) 樣式 --- */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(44, 62, 80, 0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .splash-content {
+            background: white;
+            padding: 5vh 6vw;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 0.6vw solid #f1c40f;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .splash-content h1 {
+            color: #2980b9;
+            font-size: 4.5vw;
+            margin-bottom: 2vh;
+        }
+        .splash-content p {
+            font-size: 2.8vw;
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 3vh;
+            font-weight: bold;
+        }
+        .splash-content .highlight-text {
+            color: #e74c3c;
+            font-size: 3.2vw;
+        }
+        .splash-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 2vh 5vw;
+            font-size: 3vw;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .splash-btn:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.2);
+        }
+        /* ------------------------------------------- */
+
+        /* 頂部導覽列 */
+        .nav {
+            display: flex; background-color: #2c3e50; padding: 1vh 0; flex-shrink: 0;
+            height: 8vh; box-sizing: border-box;
+        }
+        .nav button {
+            flex: 1; background: none; border: none; color: white; font-size: 2.2vw;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .nav button:hover, .nav button.active {
+            background-color: #f1c40f; color: #2c3e50;
+        }
+        
+        /* 內容區塊 */
+        .content {
+            flex: 1; padding: 1.5vh 4vw; display: none; flex-direction: column;
+            align-items: center; justify-content: flex-start; overflow-y: auto; 
+            height: 92vh; box-sizing: border-box;
+        }
+        .content.active { display: flex; }
+        
+        /* 標題與文字 */
+        h1 { font-size: 3.5vw; color: #2980b9; margin-bottom: 1vh; margin-top: 0; text-align: center; flex-shrink: 0;}
+        h2 { font-size: 2.8vw; color: #e74c3c; margin-bottom: 0.5vh; text-align: center;}
+        
+        /* 區塊 1: 網格卡片與魔王規則 */
+        .grid-container {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 2vw; width: 90%; margin-top: 1vh;
+        }
+        .card {
+            background: white; border: 0.3vw solid #bdc3c7; border-radius: 20px; padding: 2.5vh;
+            text-align: center; font-size: 3.5vw; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card:hover { transform: scale(1.02); }
+        .highlight { color: #e74c3c; } 
+        
+        .warning-box {
+            background-color: #fff3cd; color: #856404; border: 0.3vw dashed #f1c40f;
+            padding: 1.5vh 3vw; border-radius: 15px; font-size: 2.5vw; width: 85%; margin-top: 2vh;
+            text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); line-height: 1.3;
+        }
+        .warning-box span { color: #e74c3c; font-weight: bold; font-size: 3vw; }
+
+        /* 區塊 2: 動詞列表網格 */
+        .verb-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 1vw; width: 100%; padding: 0.5vw; box-sizing: border-box;
+        }
+        .verb-item {
+            background: #ecf0f1; padding: 1vh 0.5vw; border-radius: 10px; text-align: center;
+            font-size: 1.8vw; cursor: pointer; font-weight: bold; border: 2px solid #bdc3c7;
+            display: flex; align-items: center; justify-content: center; min-height: 6.5vh;
+        }
+        .verb-item:hover { background: #d5dbdb; }
+
+        /* 區塊 3: 句型結構 (積木) */
+        .chinese-text { font-size: 2.2vw; color: #555; font-weight: bold; margin-bottom: 0.5vh; text-align: center;}
+        .cn-box { font-size: 2.8vw; background: white; padding: 1vh 2vw; border-radius: 10px; margin-bottom: 0.5vh; line-height: 1.2;}
+        
+        .sentence-box {
+            display: flex; gap: 1vw; margin: 1.5vh 0; flex-wrap: wrap; justify-content: center; min-height: 8vh;
+        }
+        .block {
+            padding: 1vh 2vw; border-radius: 12px; font-size: 3vw; font-weight: bold; color: white;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: all 0.4s ease;
+        }
+        .block.show { opacity: 1; transform: translateY(0); }
+        
+        .b-subj { background-color: #f39c12; }
+        .b-verb { background-color: #e74c3c; }
+        .b-place { background-color: #27ae60; }
+        .b-time { background-color: #3498db; }
+
+        .reveal-btn {
+            font-size: 2vw; padding: 1vh 2vw; margin-top: 0;
+            background-color: #8e44ad; color: white; border: none; border-radius: 10px; cursor: pointer; transition: 0.3s;
+        }
+        .reveal-btn:hover { background-color: #9b59b6; }
+
+        /* 區塊 4: 問答句型 */
+        .qa-container { width: 90%; display: flex; flex-direction: column; gap: 1.5vh; }
+        .qa-box {
+            width: 100%; text-align: left; background: #fff; padding: 1.5vh 3vw; 
+            border-left: 1vw solid #3498db; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 2.5vw;
+        }
+        .qa-box span.q { color: #2980b9; font-weight: bold; }
+        .qa-box span.a { color: #27ae60; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1>✨ 歡迎來到英語文法大挑戰 ✨</h1>
+            <p>這份超有趣的互動教材，是由最用心教導大家的<br>
+               <span class="highlight-text">Eddie 老師（劉家銘）</span><br>
+               熬夜精心為你們設計與製作的喔！
+            </p>
+            <p>希望各位小朋友們能跟著老師的腳步，一步步破解文法任務。<br>
+               請大家一定要 <span class="highlight-text">用心複習</span>，把所有的魔王規則通通打敗！
+            </p>
+            <button class="splash-btn" onclick="closeSplash()">準備好了！開始挑戰 🚀</button>
+        </div>
+    </div>
+
+    <div class="nav">
+        <button class="active" onclick="showTab('tab1')">1. Do / Does 規則</button>
+        <button onclick="showTab('tab2')">2. 動詞超級變變變</button>
+        <button onclick="showTab('tab3')">3. 句型大解密</button>
+        <button onclick="showTab('tab4')">4. 實戰問答</button>
+    </div>
+
+    <div id="tab1" class="content active">
+        <h1>什麼時候用 Do？什麼時候用 Does？</h1>
+        <div class="grid-container">
+            <div class="card" onclick="toggleText(this, 'I, You, We, They<br><br><b>使用 Do</b>', 'I, You, We, They')">I, You, We, They</div>
+            <div class="card" onclick="toggleText(this, 'He, She, It<br>(第三人稱單數)<br><br><b>使用 <span class=\'highlight\'>Does</span></b>', 'He, She, It<br>(第三人稱單數)')">He, She, It<br>(第三人稱單數)</div>
+        </div>
+        <div class="warning-box">
+            ⚠️ <b>無敵魔王規則：</b><br>
+            只要句子裡出現了 <b>Do</b> 或 <b>Does</b>，<br>
+            後面的動詞就會「被打回原形」，<span>絕對不可以</span>加 s 或 es！
+        </div>
+    </div>
+
+    <div id="tab2" class="content">
+        <h1>動詞超級變變變 (點擊看變化)</h1>
+        <div class="verb-grid" id="verbContainer"></div>
+    </div>
+
+    <div id="tab3" class="content">
+        <h1>中英文語序大不同！</h1>
+        <div class="chinese-text">中文邏輯：[主詞] + <span style="color:#3498db">時間</span> + <span style="color:#27ae60">地方</span> + <span style="color:#e74c3c">動作</span></div>
+        <div class="cn-box" id="cn-sentence"></div>
+        
+        <hr style="width: 80%; margin: 1vh 0; border: 1px dashed #ccc;">
+        
+        <div class="chinese-text">英文邏輯：Who + Action + Where + When</div>
+        <div class="cn-box">主詞 + <span style="color:#e74c3c">動作</span> + <span style="color:#27ae60">地方</span> + <span style="color:#3498db">時間</span></div>
+        
+        <div class="sentence-box" id="sentenceBlocks"></div>
+        <div>
+            <button class="reveal-btn" id="revealBtn" onclick="handleReveal()">點擊依序顯示英文</button>
+        </div>
+    </div>
+
+    <div id="tab4" class="content">
+        <h1>情境問答挑戰</h1>
+        <div class="qa-container">
+            <div class="qa-box"><p><span class="q">Q:</span> What <span class="highlight">does</span> he like to do?</p><p><span class="a">A:</span> He like<span class="highlight">s</span> to <b>go hiking</b>.</p></div>
+            <div class="qa-box"><p><span class="q">Q:</span> What time <span class="highlight">do</span> you get up?</p><p><span class="a">A:</span> I <b>get up</b> <span style="color:#3498db">at 7:00</span>.</p></div>
+            <div class="qa-box"><p><span class="q">Q:</span> What time <span class="highlight">does</span> she go to bed?</p><p><span class="a">A:</span> She <b>go<span class="highlight">es</span> to bed</b> <span style="color:#3498db">at 10:30</span>.</p></div>
+            <div class="qa-box"><p><span class="q">Q:</span> What <span class="highlight">do</span> they do <span style="color:#3498db">on Monday</span>?</p><p><span class="a">A:</span> They <b>play basketball</b> <span style="color:#3498db">on Monday</span>.</p></div>
+            <div class="qa-box"><p><span class="q">Q:</span> What <span class="highlight">does</span> she do <span style="color:#3498db">on Sunday</span>?</p><p><span class="a">A:</span> She <b>visit<span class="highlight">s</span> a friend</b> <span style="color:#3498db">on Sunday</span>.</p></div>
+            <div class="qa-box"><p><span class="q">Q:</span> What <span class="highlight">does</span> John do <span style="color:#3498db">on Saturday</span>?</p><p><span class="a">A:</span> He <b>fl<span class="highlight">ies</span> a kite</b> <span style="color:#3498db">on Saturday</span>.</p></div>
+        </div>
+    </div>
+
+    <script>
+        // 關閉歡迎畫面的功能
+        function closeSplash() {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => { splash.style.display = 'none'; }, 500);
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleText(element, text1, text2) {
+            if (element.innerHTML.includes('Do')) element.innerHTML = text2;
+            else element.innerHTML = text1;
+        }
+
+        // --- 造句引擎資料庫 ---
+        const subjects = [
+            {en: "I", cn: "我", type: "plural"}, {en: "You", cn: "你", type: "plural"},
+            {en: "We", cn: "我們", type: "plural"}, {en: "They", cn: "他們", type: "plural"},
+            {en: "He", cn: "他", type: "singular"}, {en: "She", cn: "她", type: "singular"}
+        ];
+
+        const places = [
+            {en: "at school", cn: "在學校"}, {en: "at home", cn: "在家裡"}
+        ];
+
+        const times = [
+            {en: "on Monday", cn: "星期一"}, {en: "on Tuesday", cn: "星期二"}, {en: "on Wednesday", cn: "星期三"},
+            {en: "on Thursday", cn: "星期四"}, {en: "on Friday", cn: "星期五"}, {en: "on Saturday", cn: "星期六"},
+            {en: "on Sunday", cn: "星期日"}, {en: "at 6:00", cn: "6點"}, {en: "at 7:00", cn: "7點"}, 
+            {en: "at 8:30", cn: "8點半"}, {en: "at 10:00", cn: "10點"}, {en: "at 12:00", cn: "12點"}
+        ];
+
+        // 包含所有動詞、第三人稱變化與中文翻譯
+        const verbsData = [
+            {base: "play basketball", thirdHtml: "play<span class='highlight'>s</span> basketball", thirdPlain: "plays basketball", cn: "打籃球"},
+            {base: "play baseball", thirdHtml: "play<span class='highlight'>s</span> baseball", thirdPlain: "plays baseball", cn: "打棒球"},
+            {base: "play soccer", thirdHtml: "play<span class='highlight'>s</span> soccer", thirdPlain: "plays soccer", cn: "踢足球"},
+            {base: "play tag", thirdHtml: "play<span class='highlight'>s</span> tag", thirdPlain: "plays tag", cn: "玩鬼抓人"},
+            {base: "play with toys", thirdHtml: "play<span class='highlight'>s</span> with toys", thirdPlain: "plays with toys", cn: "玩玩具"},
+            {base: "watch the birds", thirdHtml: "watch<span class='highlight'>es</span> the birds", thirdPlain: "watches the birds", cn: "看鳥"},
+            {base: "wash face", thirdHtml: "wash<span class='highlight'>es</span> face", thirdPlain: "washes face", cn: "洗臉"},
+            {base: "brush teeth", thirdHtml: "brush<span class='highlight'>es</span> teeth", thirdPlain: "brushes teeth", cn: "刷牙"},
+            {base: "do laundry", thirdHtml: "do<span class='highlight'>es</span> laundry", thirdPlain: "does laundry", cn: "洗衣服"},
+            {base: "do homework", thirdHtml: "do<span class='highlight'>es</span> homework", thirdPlain: "寫功課", cn: "寫功課"},
+            {base: "go shopping", thirdHtml: "go<span class='highlight'>es</span> shopping", thirdPlain: "goes shopping", cn: "去購物"},
+            {base: "go hiking", thirdHtml: "go<span class='highlight'>es</span> hiking", thirdPlain: "goes hiking", cn: "去爬山"},
+            {base: "go to school", thirdHtml: "go<span class='highlight'>es</span> to school", thirdPlain: "goes to school", cn: "去上學"},
+            {base: "go to bed", thirdHtml: "go<span class='highlight'>es</span> to bed", thirdPlain: "goes to bed", cn: "去睡覺"},
+            {base: "go to work", thirdHtml: "go<span class='highlight'>es</span> to work", thirdPlain: "goes to work", cn: "去上班"},
+            {base: "see a movie", thirdHtml: "see<span class='highlight'>s</span> a movie", thirdPlain: "sees a movie", cn: "看電影"},
+            {base: "visit a friend", thirdHtml: "visit<span class='highlight'>s</span> a friend", thirdPlain: "visits a friend", cn: "拜訪朋友"},
+            {base: "take a bath", thirdHtml: "take<span class='highlight'>s</span> a bath", thirdPlain: "takes a bath", cn: "洗澡"},
+            {base: "make the bed", thirdHtml: "make<span class='highlight'>s</span> the bed", thirdPlain: "makes the bed", cn: "鋪床"},
+            {base: "comb hair", thirdHtml: "comb<span class='highlight'>s</span> hair", thirdPlain: "combs hair", cn: "梳頭髮"},
+            {base: "get up", thirdHtml: "get<span class='highlight'>s</span> up", thirdPlain: "gets up", cn: "起床"},
+            {base: "read", thirdHtml: "read<span class='highlight'>s</span>", thirdPlain: "reads", cn: "看書"},
+            {base: "jump", thirdHtml: "jump<span class='highlight'>s</span>", thirdPlain: "jumps", cn: "跳躍"},
+            {base: "run", thirdHtml: "run<span class='highlight'>s</span>", thirdPlain: "runs", cn: "跑步"},
+            {base: "sing", thirdHtml: "sing<span class='highlight'>s</span>", thirdPlain: "sings", cn: "唱歌"},
+            {base: "dance", thirdHtml: "dance<span class='highlight'>s</span>", thirdPlain: "dances", cn: "跳舞"},
+            {base: "ride a bike", thirdHtml: "ride<span class='highlight'>s</span> a bike", thirdPlain: "rides a bike", cn: "騎腳踏車"},
+            {base: "speak English", thirdHtml: "speak<span class='highlight'>s</span> English", thirdPlain: "speaks English", cn: "說英文"},
+            {base: "study", thirdHtml: "stud<span class='highlight'>ies</span>", thirdPlain: "studies", cn: "讀書"},
+            {base: "fly a kite", thirdHtml: "fl<span class='highlight'>ies</span> a kite", thirdPlain: "flies a kite", cn: "放風箏"},
+            {base: "have a picnic", thirdHtml: "<span class='highlight'>has</span> a picnic", thirdPlain: "has a picnic", cn: "野餐"}
+        ];
+
+        let blockIndex = 0;
+        let currentBlocks = [];
+
+        // 隨機產生一個新句子
+        function generateRandomSentence() {
+            let s = subjects[Math.floor(Math.random() * subjects.length)];
+            let v = verbsData[Math.floor(Math.random() * verbsData.length)];
+            let p = places[Math.floor(Math.random() * places.length)];
+            let t = times[Math.floor(Math.random() * times.length)];
+
+            // 判斷是否要加 s/es
+            let finalVerb = (s.type === "singular") ? v.thirdPlain : v.base;
+
+            // 組合中文
+            let cnHtml = `"${s.cn} <span style='color:#3498db'>${t.cn}</span> <span style='color:#27ae60'>${p.cn}</span> <span style='color:#e74c3c'>${v.cn}</span>。"`;
+
+            // 組合英文積木
+            currentBlocks = [
+                { text: s.en, class: "b-subj" },
+                { text: finalVerb, class: "b-verb" },
+                { text: p.en, class: "b-place" },
+                { text: t.en + ".", class: "b-time" }
+            ];
+
+            // 渲染到畫面上
+            document.getElementById('cn-sentence').innerHTML = cnHtml;
+            const container = document.getElementById('sentenceBlocks');
+            container.innerHTML = '';
+            currentBlocks.forEach(word => {
+                const div = document.createElement('div');
+                div.className = `block ${word.class}`;
+                div.innerHTML = word.text;
+                container.appendChild(div);
+            });
+            
+            blockIndex = 0;
+            const btn = document.getElementById('revealBtn');
+            btn.innerText = "點擊依序顯示英文";
+            btn.style.backgroundColor = "#8e44ad";
+        }
+
+        // 點擊顯示積木
+        function handleReveal() {
+            const blocks = document.querySelectorAll('.block');
+            const btn = document.getElementById('revealBtn');
+
+            if (blockIndex < blocks.length) {
+                blocks[blockIndex].classList.add('show');
+                blockIndex++;
+                
+                if (blockIndex === blocks.length) {
+                    btn.innerText = "換下一個隨機例句 ➔";
+                    btn.style.backgroundColor = "#d35400";
+                }
+            } else {
+                generateRandomSentence();
+            }
+        }
+
+        // 第 2 頁動態載入動詞清單
+        const verbContainer = document.getElementById('verbContainer');
+        verbsData.forEach(v => {
+            let div = document.createElement('div');
+            div.className = 'verb-item';
+            div.innerHTML = v.base;
+            div.onclick = function() {
+                if (this.innerHTML === v.base) this.innerHTML = v.thirdHtml;
+                else this.innerHTML = v.base;
+            };
+            verbContainer.appendChild(div);
+        });
+
+        // 網頁載入時自動產生第一句
+        window.onload = generateRandomSentence;
+    </script>
+</body>
+</html>
